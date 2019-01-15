@@ -1,0 +1,129 @@
+<html>
+  <head>
+    <title>Color Wash</title>
+    <meta name="viewport" content="width=device-width"/>
+    <style>
+      body{
+        background:black;
+        overflow:hidden;
+        margin:0;
+      }
+      body > div{
+        position:absolute;
+        width:100vh; height:100vh;
+        left:50%; top:50%; transform:translate(-50%,-50%);
+        pointer-events:none;
+      }
+      div > div{
+        position:absolute;
+        transition:background-color 1s ease-in-out;
+        transition-property:all;
+      }
+      @media screen and (orientation:portrait){
+        body > div{
+          width:100vw; height:100vw;
+        }
+      }
+    </style>
+    <script>
+      var counter=0;
+      var counterEnd=0;
+      
+      var tone=Math.random();
+      var matrixArray=[];
+      var indexCounter=0;
+      var currentColor='hsl(0,0%,0%)';
+      
+      function randomMatrix(){
+        return matrixArray.sort(function(a,b){ return (Math.random()*2)-1;});
+      }
+      
+      function getTheColor(){
+        var lightness=20+Math.floor(Math.random()*65);
+        var hue=0;
+        var sat=0;
+        if(tone!=-1){
+          hue=Math.floor(tone*359.99);
+          sat=50+Math.floor(Math.random()*50);
+        }
+
+        return 'hsl('+hue+','+sat+'%,'+lightness+'%)';
+      }
+      
+      function randomizeCounterEnd(){
+          var e=0.5+(Math.random()/2);
+          counterEnd = Math.floor(e*(128));
+      }
+      
+      randomizeCounterEnd();
+      var roundCounter=0;
+      var colorCounter=0;
+      var lastPreviousCircle=-1;
+      var lastCircle=-1;
+      var roundIndex=0;
+      function randomCircleIndex(){
+        var i=-1;
+        do{
+          i=Math.floor(Math.random()*(matrixArray.length-0.001));
+        }while(i==lastCircle || i==lastPreviousCircle);
+        lastPreviousCircle=lastCircle;
+        lastCircle=i;
+        return i;  
+      }
+      function tick(){
+          colorCounter=0;
+          matrixArray[indexCounter++].style.backgroundColor=getTheColor();
+          if(indexCounter==matrixArray.length){
+            indexCounter=0;
+            randomMatrix();
+          }
+        
+        if(roundCounter++==2){
+          roundCounter=0;
+          var c=matrixArray[randomCircleIndex()];
+          if(Math.random()>0.8){
+            var s=(0.4+(Math.random()*0.6));
+            c.style.transform='scale('+s+','+s+')';
+            c.style.borderRadius='50%';
+          }else{
+            c.style.borderRadius=null;
+            c.style.transform=null;
+          }
+        }
+
+        if(counter++==counterEnd){
+          counter=0;
+          randomizeCounterEnd();
+          if(tone!=-1 && Math.random()>0.6){
+            tone=-1;
+            wasGray=true;
+          }else
+            tone=Math.random();
+        }
+      }
+ 
+      var grid=document.createElement('div');
+      var sizep=100/8;
+      
+      for(var y=0;y<8;y++){
+        for(var x=0;x<8;x++){
+          var c=document.createElement('div');
+          grid.appendChild(c);
+          
+          c.style.left=( sizep*x)+'%';
+          c.style.top =(sizep*y)+'%';
+          matrixArray.push(c);
+        }
+      }
+      window.addEventListener('load',function(){
+        var st=document.querySelector('style');
+        st.sheet.insertRule('div > div{ width:'+sizep+'%;height:'+sizep+'% }', 0);
+        document.body.appendChild(grid);
+        randomMatrix();
+        setInterval(tick,100);
+      });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
